@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "acceptance-gate/phase0/schema/acceptance_receipt.schema.json",
+  "title": "Acceptance Receipt v0.2",
+  "type": "object",
+  "required": ["receipt_version", "receipt_type", "subject", "verdict", "stages_executed", "method", "timestamps", "human_review", "artifacts"],
+  "properties": {
+    "receipt_version": { "const": "0.2" },
+    "receipt_type": { "enum": ["gate_verdict", "finding", "study_prereg", "study_result"] },
+    "subject": {
+      "type": "object",
+      "required": ["repo"],
+      "properties": {
+        "repo": { "type": "string" },
+        "pr": { "type": ["string", "null"] },
+        "base_sha": { "type": ["string", "null"] },
+        "head_sha": { "type": ["string", "null"] },
+        "agent": { "type": ["string", "null"] }
+      }
+    },
+    "verdict": {
+      "type": ["object", "null"],
+      "properties": {
+        "status": { "enum": ["PASS", "REVIEW_REQUIRED", "REJECT", null] },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "invariants": {
+      "type": ["object", "null"],
+      "properties": {
+        "I1_failure_reality":      { "$ref": "#/definitions/invariant_result" },
+        "I2_patch_causality":      { "$ref": "#/definitions/invariant_result" },
+        "I3_oracle_integrity":     {
+          "allOf": [{ "$ref": "#/definitions/invariant_result" }],
+          "properties": { "classification": { "enum": ["A", "B", "C", "D", "E", null] } }
+        },
+        "I4_reproducibility":      { "$ref": "#/definitions/invariant_result" },
+        "I5_scope_integrity":      { "$ref": "#/definitions/invariant_result" },
+        "I6_evidence_sufficiency": { "$ref": "#/definitions/invariant_result" }
+      }
+    },
+    "stages_executed": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 0, "maximum": 4 }
+    },
+    "semantic_review": {
+      "type": ["object", "null"],
+      "properties": {
+        "mode": { "enum": ["A", "B", null] },
+        "evidence_packet_hash": { "type": ["string", "null"] },
+        "prompt_hash": { "type": ["string", "null"] },
+        "model_id": { "type": ["string", "null"] },
+        "model_version": { "type": ["string", "null"] },
+        "cache_hit": { "type": ["boolean", "null"] }
+      }
+    },
+    "method": {
+      "type": "object",
+      "required": ["gate_version"],
+      "properties": {
+        "gate_version": { "type": "string" },
+        "detector_set_hash": { "type": ["string", "null"] }
+      }
+    },
+    "environment": {
+      "type": ["object", "null"],
+      "properties": {
+        "runner": { "type": ["string", "null"] },
+        "isolation": { "type": ["string", "null"] },
+        "fingerprint": { "type": ["string", "null"] }
+      }
+    },
+    "evidence_bundle": {
+      "type": ["object", "null"],
+      "properties": {
+        "root_hash": { "type": ["string", "null"] },
+        "index_path": { "type": ["string", "null"] }
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["started"],
+      "properties": {
+        "started": { "type": "string" },
+        "finished": { "type": ["string", "null"] }
+      }
+    },
+    "human_review": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["pending", "confirmed", "rejected"] },
+        "reviewer": { "type": ["string", "null"] },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "prereg_ref": { "type": ["string", "null"] },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": ["string", "null"] }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "invariant_result": {
+      "type": ["object", "null"],
+      "properties": {
+        "status": { "enum": ["verified", "failed", "not_evaluated", "abstained", null] },
+        "evidence": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
