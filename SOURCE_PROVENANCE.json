@@ -1,15 +1,23 @@
 {
   "source_repository": "private (same GitHub account, not published)",
-  "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545",
   "extraction_date": "2026-08-02",
-  "published_files": [
-    {"path": "gate.py", "sha256": "2e8a4d8d5dff02d5d2849fb87fb75f0437479548318e94c91b9217197c7639f1"},
-    {"path": "sandbox.py", "sha256": "262cee459b44104a59ec07d60938abc2edb85c05a84b66461e90e9f1708b440f"},
-    {"path": "test_sandbox.py", "sha256": "522e492d1147bf119e52a669a6f329507b2d2cba803a4d6275beae6cccbab685"},
-    {"path": "README.md", "sha256": "4bdd7f36d2a18bf543dc1db1d435f727982b2738ec646ca4aa26d86f73327d49"},
-    {"path": "phase0/schema/acceptance_receipt.schema.json", "sha256": "60b4acf444bb4868eccc24932a78e9487ddae4107f81b175fd32a1d9954b7ea8"}
+  "unchanged_private_source_files": [
+    {"path": "gate.py", "sha256": "2e8a4d8d5dff02d5d2849fb87fb75f0437479548318e94c91b9217197c7639f1", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"},
+    {"path": "sandbox.py", "sha256": "262cee459b44104a59ec07d60938abc2edb85c05a84b66461e90e9f1708b440f", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"},
+    {"path": "test_sandbox.py", "sha256": "522e492d1147bf119e52a669a6f329507b2d2cba803a4d6275beae6cccbab685", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"},
+    {"path": "phase0/schema/acceptance_receipt.schema.json", "sha256": "60b4acf444bb4868eccc24932a78e9487ddae4107f81b175fd32a1d9954b7ea8", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"}
   ],
-  "fixture_note": "pilot_fixture/repo is a freshly generated throwaway git history (3 commits: seed-bug, correct-fix, adversarial-weakened-test) created for this public release, not extracted from the private source repo's own git history. Original private-repo pilot_fixture had its own SHAs; these are new, deterministic-content commits with fixed author/committer dates for reproducibility.",
+  "public_release_generated_files": [
+    {"path": "LICENSE", "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30", "note": "Apache-2.0, fetched verbatim from apache.org at first publication"},
+    {"path": ".gitignore", "sha256": "900f63de880d9af8908aaf809d55f9b1082874d86e6f8ba2e69ed19cfcbc5f9c", "note": "authored for public release"},
+    {"path": "pilot_fixture/repo.bundle", "sha256": "832d8134fe18b17d63066163b1e06b676a1d259cc18f7d1af17a979bab6af0ea", "note": "freshly generated throwaway git history (seed-bug, correct-fix, adversarial-weakened-test), not extracted from private repo git history; see fixture_commits below"}
+  ],
+  "this_correction_cycle_files": [
+    {"path": "requirements.txt", "sha256": "49026b67905a6c42bd426e6f8b3d2d08dc24ec6fe51cb2f706aea0a3fb5f8e08", "note": "added: pins jsonschema==4.19.2, the real non-stdlib runtime dependency of gate.py, previously undeclared"},
+    {"path": "README.md", "sha256": "3e354a7ac467460ee703f63efda9b8c2ef960427fe4bde1095a8508d79982c52", "note": "corrected: removed inaccurate 'stdlib + bubblewrap only' claim, added exact clone URL, venv/requirements.txt setup, network-for-deps-only clarification"},
+    {"path": ".github/workflows/stranger-ready.yml", "sha256": "36c8ba4201397d672b7d00a8b5cc70fd8d7b4d6ac8b7a6732acccb933d128192", "note": "added: manual workflow_dispatch only, contents:read, no secrets, reproduces PASS/REVIEW_REQUIRED cases 3x each in an ephemeral runner from a fresh clone"},
+    {"path": "RELEASE_MANIFEST.sha256", "sha256": null, "note": "this correction cycle's own output; not self-referential, excludes itself"}
+  ],
   "fixture_commits": {
     "seed_bug": "bc2657e087389db825652f5e8e0b7de94e4d90fd",
     "correct_fix": "01491aa0feaa20f8d8b0861f00e507df74ab6059",
@@ -22,6 +30,6 @@
     "credentials, tokens, hostnames, /home/... paths"
   ],
   "known_gaps_not_reverified_this_cycle": [
-    "test_sandbox.py's own pytest unit suite (22/22 PASS historically, 2026-07-15) was not re-run in this publication cycle because pytest is not installed on the publishing host and package installation is prohibited by task rules. The end-to-end gate.py demonstration (PASS and REVIEW_REQUIRED cases) WAS run live this cycle and is the primary public-facing proof."
+    "test_sandbox.py's own pytest unit suite (22/22 PASS historically, 2026-07-15) is not exercised by requirements.txt or the CI workflow, which only cover gate.py's runtime dependency (jsonschema) and the end-to-end demo. pytest is not declared as a dependency because it is not required to reproduce the published PASS/REVIEW_REQUIRED demonstration."
   ]
 }

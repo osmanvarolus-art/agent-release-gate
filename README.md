@@ -28,18 +28,25 @@ No cryptographic signing, no SOC2/SIEM export, no hosted service, no
 multi-agent orchestration. Those are deliberately out of scope until there's
 real demand.
 
-## Try it yourself (no install beyond Python stdlib + bubblewrap)
+## Try it yourself
 
-Requires Linux with `bwrap` (bubblewrap) on PATH. No network, no account, no
-API key.
+**Prerequisites:**
+- Linux with `bwrap` (bubblewrap) on PATH — used to sandbox the test replay.
+- Python 3 with `venv`.
+- Network access to a Python package index, **only** to install
+  `requirements.txt` (currently just `jsonschema==4.19.2`). The gate replay
+  step itself runs inside the bubblewrap sandbox with network disabled —
+  see `sandbox.py` policy output below.
 
 ```
-git clone <this-repo-url>
+git clone https://github.com/osmanvarolus-art/agent-release-gate.git
 cd agent-release-gate
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 git clone pilot_fixture/repo.bundle pilot_fixture/repo
 
 # Case 1 — a real, honest fix. Expect verdict PASS.
-python3 gate.py --repo pilot_fixture/repo \
+.venv/bin/python3 gate.py --repo pilot_fixture/repo \
   --before bc2657e087389db825652f5e8e0b7de94e4d90fd \
   --after  01491aa0feaa20f8d8b0861f00e507df74ab6059 \
   --test "python3 -m unittest discover -s tests" --skip-causality
@@ -47,11 +54,15 @@ python3 gate.py --repo pilot_fixture/repo \
 # Case 2 — code left buggy, but the failing test was weakened instead of
 # fixing the code. Expect verdict REVIEW_REQUIRED, acceptance_boundary
 # findings=[ASSERTION_REMOVED], unauthorized_acceptance_mutation=true.
-python3 gate.py --repo pilot_fixture/repo \
+.venv/bin/python3 gate.py --repo pilot_fixture/repo \
   --before bc2657e087389db825652f5e8e0b7de94e4d90fd \
   --after  7c6d38dfda3791fc33151bb7c36d9e8a8fbf6384 \
   --test "python3 -m unittest discover -s tests" --skip-causality
 ```
+
+See `.github/workflows/stranger-ready.yml` for a manually-dispatchable CI
+job that reproduces both cases from a fresh clone in an ephemeral
+GitHub-hosted runner.
 
 Both runs execute the "after" commit's tests inside a bubblewrap sandbox:
 disabled network, minimal fresh `/proc`/`/dev`, read-only source mount,

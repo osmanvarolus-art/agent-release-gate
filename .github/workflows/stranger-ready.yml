@@ -1,0 +1,72 @@
+name: stranger-ready
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install bubblewrap
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq bubblewrap
+
+      - name: Fresh clone of this public repo (do not trust the runner's own checkout)
+        run: git clone https://github.com/${{ github.repository }}.git fresh-clone
+
+      - name: Create venv without system-site-packages
+        run: python3 -m venv fresh-clone/.venv
+
+      - name: Install only requirements.txt
+        run: fresh-clone/.venv/bin/pip install -r fresh-clone/requirements.txt
+
+      - name: Verify installed jsonschema version
+        run: fresh-clone/.venv/bin/python3 -c "from importlib.metadata import version; v=version('jsonschema'); print('jsonschema', v); assert v == '4.19.2', f'unexpected version {v}'"
+
+      - name: Materialize fixture repo from bundle
+        run: |
+          cd fresh-clone
+          git clone pilot_fixture/repo.bundle pilot_fixture/repo
+
+      - name: Honest-fix case (PASS) x3
+        run: |
+          cd fresh-clone
+          for i in 1 2 3; do
+            echo "=== PASS run $i ==="
+            .venv/bin/python3 gate.py --repo pilot_fixture/repo \
+              --before bc2657e087389db825652f5e8e0b7de94e4d90fd \
+              --after  01491aa0feaa20f8d8b0861f00e507df74ab6059 \
+              --test "python3 -m unittest discover -s tests" --skip-causality \
+              --out "/tmp/pass_$i.json"
+            status=$(.venv/bin/python3 -c "import json;print(json.load(open('/tmp/pass_$i.json'))['verdict']['status'])")
+            net=$(.venv/bin/python3 -c "import json;print(json.load(open('/tmp/pass_$i.json'))['sandbox']['policy']['network'])")
+            echo "status=$status network=$net"
+            [ "$status" = "PASS" ] || { echo "FAIL: expected PASS, got $status"; exit 1; }
+            [ "$net" = "disabled" ] || { echo "FAIL: expected network disabled, got $net"; exit 1; }
+          done
+
+      - name: Weakened-test case (REVIEW_REQUIRED) x3
+        run: |
+          cd fresh-clone
+          for i in 1 2 3; do
+            echo "=== ADVERSARIAL run $i ==="
+            set +e
+            .venv/bin/python3 gate.py --repo pilot_fixture/repo \
+              --before bc2657e087389db825652f5e8e0b7de94e4d90fd \
+              --after  7c6d38dfda3791fc33151bb7c36d9e8a8fbf6384 \
+              --test "python3 -m unittest discover -s tests" --skip-causality \
+              --out "/tmp/adv_$i.json"
+            set -e
+            status=$(.venv/bin/python3 -c "import json;print(json.load(open('/tmp/adv_$i.json'))['verdict']['status'])")
+            changes=$(.venv/bin/python3 -c "import json;d=json.load(open('/tmp/adv_$i.json'));print(d['acceptance_boundary']['findings'][0]['changes'])")
+            net=$(.venv/bin/python3 -c "import json;print(json.load(open('/tmp/adv_$i.json'))['sandbox']['policy']['network'])")
+            echo "status=$status changes=$changes network=$net"
+            [ "$status" = "REVIEW_REQUIRED" ] || { echo "FAIL: expected REVIEW_REQUIRED, got $status"; exit 1; }
+            echo "$changes" | grep -q "ASSERTION_REMOVED" || { echo "FAIL: expected ASSERTION_REMOVED"; exit 1; }
+            [ "$net" = "disabled" ] || { echo "FAIL: expected network disabled, got $net"; exit 1; }
+          done
+
+      - name: All checks passed
+        run: echo "STRANGER_READY_CI_PASS"
