@@ -247,6 +247,31 @@ def classify_path(path):
     return categories or ["other"]
 
 
+def preflight(repo, before, after):
+    """Fail with a usable message instead of a traceback.
+
+    A shallow clone (`git clone --depth 1`) is the common case here: HEAD~1
+    simply does not exist in it, and git's own error ("ambiguous argument")
+    does not tell a first-time user that shallowness is the cause.
+    """
+    if not Path(repo).exists():
+        raise SystemExit(f"error: --repo path does not exist: {repo}")
+    if sh(["git", "rev-parse", "--is-inside-work-tree"], cwd=repo,
+          check=False).returncode != 0:
+        raise SystemExit(f"error: --repo is not a git repository: {repo}")
+    shallow = sh(["git", "rev-parse", "--is-shallow-repository"], cwd=repo,
+                 check=False).stdout.strip() == "true"
+    for label, rev in (("--before", before), ("--after", after)):
+        if sh(["git", "rev-parse", "--verify", f"{rev}^{{commit}}"], cwd=repo,
+              check=False).returncode != 0:
+            hint = ("\nhint: this is a shallow clone, so earlier commits are "
+                    "absent. Run `git fetch --unshallow` and retry."
+                    if shallow else
+                    "\nhint: check the commit exists with `git log --oneline`.")
+            raise SystemExit(f"error: {label} revision not found in {repo}: "
+                             f"{rev}{hint}")
+
+
 def stage0_triage(repo, before, after):
     changed = []
     counts = {}
@@ -694,6 +719,16 @@ def main():
         ap.error("--test is required unless --diff-only is set")
 
     repo = Path(args.repo).resolve()
+    preflight(repo, args.before, args.after)
+    # Resolve refs to full SHAs immediately. Downstream stages clone the repo
+    # into a temp dir, and a clone only carries the default branch as a local
+    # ref -- so a perfectly valid `--after my-fix-branch` blew up inside
+    # stage 3 with "ambiguous argument". Users naturally pass branch names,
+    # so resolve once here and let every stage work with commits.
+    args.before = sh(["git", "rev-parse", f"{args.before}^{{commit}}"],
+                     cwd=repo).stdout.strip()
+    args.after = sh(["git", "rev-parse", f"{args.after}^{{commit}}"],
+                    cwd=repo).stdout.strip()
     started = datetime.now(timezone.utc).isoformat(timespec="seconds")
     triage = stage0_triage(repo, args.before, args.after)
     diff_text = sh(["git", "diff", f"{args.before}..{args.after}"], cwd=repo).stdout
