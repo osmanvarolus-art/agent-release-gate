@@ -2,10 +2,21 @@
   "source_repository": "private (same GitHub account, not published)",
   "extraction_date": "2026-08-02",
   "unchanged_private_source_files": [
-    {"path": "gate.py", "sha256": "2e8a4d8d5dff02d5d2849fb87fb75f0437479548318e94c91b9217197c7639f1", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"},
     {"path": "sandbox.py", "sha256": "262cee459b44104a59ec07d60938abc2edb85c05a84b66461e90e9f1708b440f", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"},
     {"path": "test_sandbox.py", "sha256": "522e492d1147bf119e52a669a6f329507b2d2cba803a4d6275beae6cccbab685", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"},
     {"path": "phase0/schema/acceptance_receipt.schema.json", "sha256": "60b4acf444bb4868eccc24932a78e9487ddae4107f81b175fd32a1d9954b7ea8", "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545"}
+  ],
+  "modified_after_extraction": [
+    {
+      "path": "gate.py",
+      "sha256": "231edfe783e0e542c5e29924187bc254236fffd8cd4da85c9a2c435df6de3300",
+      "superseded_sha256": "2e8a4d8d5dff02d5d2849fb87fb75f0437479548318e94c91b9217197c7639f1",
+      "source_commit": "d9e50a75faef89aa145bf43b50d974858ec42545",
+      "modified_by_commit": "357ba11e4924ebb9df5012375dc7c100a07a7a89",
+      "modified_date": "2026-08-12",
+      "reason": "preflight validation of path, repo and both revisions (a --depth 1 clone has no HEAD~1, so the documented command exited with a raw traceback), and resolution of refs to shas before staging",
+      "note": "This file was listed under unchanged_private_source_files until 2026-08-15. That was false from 2026-08-12 onward: commit 357ba11 modified it after the 2026-08-02 extraction, so the recorded hash no longer matched the published file and RELEASE_MANIFEST.sha256 failed verification for this entry. The superseded hash is retained above rather than deleted, so the earlier published claim stays auditable."
+    }
   ],
   "public_release_generated_files": [
     {"path": "LICENSE", "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30", "note": "Apache-2.0, fetched verbatim from apache.org at first publication"},

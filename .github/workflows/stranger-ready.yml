@@ -2,6 +2,8 @@ name: stranger-ready
 
 on:
   workflow_dispatch: {}
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -18,6 +20,11 @@ jobs:
 
       - name: Fresh clone of this public repo (do not trust the runner's own checkout)
         run: git clone https://github.com/${{ github.repository }}.git fresh-clone
+
+      - name: Verify published bytes against RELEASE_MANIFEST.sha256
+        run: |
+          cd fresh-clone
+          sha256sum -c RELEASE_MANIFEST.sha256
 
       - name: Create venv without system-site-packages
         run: python3 -m venv fresh-clone/.venv
