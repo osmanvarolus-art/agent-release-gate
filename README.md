@@ -73,3 +73,7 @@ explicit deny-list assertions on sensitive host paths. See `sandbox.py` /
 The commit history in `pilot_fixture/repo.bundle` is a freshly generated
 throwaway fixture created for this public release (not extracted from any
 private repository's git history) — see `SOURCE_PROVENANCE.json`.
+
+## License and ownership
+
+Copyright (c) 2026 Osman Varol. All rights reserved. The code is public so it can be read, run locally and evaluated; it is **not** open source. See [LICENSE](LICENSE). Copies obtained before 2026-10-30 under Apache-2.0 keep the rights that licence gave them; this repository does not grant them from now on.

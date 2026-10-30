@@ -19,13 +19,13 @@
     }
   ],
   "public_release_generated_files": [
-    {"path": "LICENSE", "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30", "note": "Apache-2.0, fetched verbatim from apache.org at first publication"},
+    {"path": "LICENSE", "sha256": "b1beec68cd6bb3ce2fd54c04b34188fd050f2d52c77e42dc9437c29750f03764", "superseded_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30", "note": "2026-10-30: replaced Apache-2.0 with an all-rights-reserved, view-and-evaluate licence by the copyright holder (owner order). The superseded hash is the Apache-2.0 text published earlier."},
     {"path": ".gitignore", "sha256": "900f63de880d9af8908aaf809d55f9b1082874d86e6f8ba2e69ed19cfcbc5f9c", "note": "authored for public release"},
     {"path": "pilot_fixture/repo.bundle", "sha256": "832d8134fe18b17d63066163b1e06b676a1d259cc18f7d1af17a979bab6af0ea", "note": "freshly generated throwaway git history (seed-bug, correct-fix, adversarial-weakened-test), not extracted from private repo git history; see fixture_commits below"}
   ],
   "this_correction_cycle_files": [
     {"path": "requirements.txt", "sha256": "49026b67905a6c42bd426e6f8b3d2d08dc24ec6fe51cb2f706aea0a3fb5f8e08", "note": "added: pins jsonschema==4.19.2, the real non-stdlib runtime dependency of gate.py, previously undeclared"},
-    {"path": "README.md", "sha256": "3e354a7ac467460ee703f63efda9b8c2ef960427fe4bde1095a8508d79982c52", "note": "corrected: removed inaccurate 'stdlib + bubblewrap only' claim, added exact clone URL, venv/requirements.txt setup, network-for-deps-only clarification"},
+    {"path": "README.md", "sha256": "c712cdef58b0a42444a1e685ad7e0557fb54250c1ace12f0dfd917745bfb557c", "superseded_sha256": "3e354a7ac467460ee703f63efda9b8c2ef960427fe4bde1095a8508d79982c52", "note": "corrected: removed inaccurate 'stdlib + bubblewrap only' claim, added exact clone URL, venv/requirements.txt setup, network-for-deps-only clarification"},
     {"path": ".github/workflows/stranger-ready.yml", "sha256": "bcc80e9a30b5716afef65b86eca8d4b8ac0b71217926943d6987115b6be960a3", "note": "added: manual workflow_dispatch only, contents:read, no secrets, reproduces PASS/REVIEW_REQUIRED cases 3x each in an ephemeral runner from a fresh clone. Revised after CI run 1: GitHub-hosted runners default kernel.apparmor_restrict_unprivileged_userns=1, which fails bwrap's loopback setup (RTM_NEWADDR: Operation not permitted). sandbox.py correctly failed CLOSED (sandboxed=false, verdict REJECT/sandbox_unavailable) rather than running unsandboxed -- this is a runner-environment prerequisite, not a gate.py/sandbox.py bug. Added one sysctl step (ephemeral runner, reset on job end, no host persistence) mirroring the same AppArmor class of fix used on the original publishing host."},
     {"path": "RELEASE_MANIFEST.sha256", "sha256": null, "note": "this correction cycle's own output; not self-referential, excludes itself"}
   ],
